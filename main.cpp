@@ -11,14 +11,6 @@
 	- It should include ASCII characters as walls and blank spaces as paths.
 		- It does not have to be a solvable maze, however, extra credit for a solvable maze.
 */
-
-
-/*
-	https://www.cefns.nau.edu/~pek7/CS200/Project%209.pdf
-	For example, in a rectangular maze, build at random points two walls that are perpendicular to each other.
-	These two walls divide the large chamber into four smaller chambers separated by four walls. Choose three of the four walls at random, and open a one cell-wide hole at a random point in each of the three. Continue in this manner recursively, until every chamber has a width of one cell in either of the two directions.
-*/
-
 #pragma once
 #include <iostream>
 #include <vector>
