@@ -1,4 +1,4 @@
-// maze generator 1.0
+// maze generator 1.2
 // create a maze using direct recursion
 /*
 	Due Aug 1 by 11:59pm
@@ -11,13 +11,19 @@
 	- It should include ASCII characters as walls and blank spaces as paths.
 		- It does not have to be a solvable maze, however, extra credit for a solvable maze.
 */
+
+// TODO: 30x30 maze: left and top borders are two lines thick - should be one line thick
+// TODO: 25x25 maze: right and bottom borders are pushed to far to right
+// TODO: change userinput from cin to one-click char press
+// updated: created an exitPunch() to make a maze exit
+
 #pragma once
 #include <iostream>
 #include <vector>
 #include <stdint.h>	// bitshifting
 #include <algorithm>
 #include <unordered_map>
-#include "header.h"
+#include "Header.h"
 
 using namespace std;
 
@@ -32,27 +38,25 @@ using namespace std;
 // global vars
 int G_WIDTH;
 int G_HEIGHT;
-// vector<char> maze;
 char wall = 'X';
 int starter;
+// int goo = 0;
+
 
 
 // function prototypes
-// void blockGrid();
 int coordsToArray(int, int);
 bool isInChamber(int, int);
 void scout(int, int, char*);
-// void showMaze();
-void showMaze(vector<char> const&);
-
+void exitPunch(vector<char>&);
+void showMaze(vector<char>const&);
 unordered_map<char, int> initialize(int);
 
-
-
+// main() is program entry point
 int main()
 {
 	srand(time(0));						// seed random num gen
-	header Welcome;						// instantiate object
+	Header Welcome;						// instantiate object
 	int z = 0;							// game loop counter start
 
 	do									// game loop
@@ -62,19 +66,23 @@ int main()
 		unordered_map<char, int> mapping = initialize(mazeChoice);
 		G_WIDTH = mapping['x'];
 		G_HEIGHT = mapping['y'];
-		cout << "  Creating a " << G_WIDTH << " x " << G_HEIGHT << " maze.\n\n";
+
 		int block = G_HEIGHT * G_WIDTH;
 		vector<char> maze(block, 'X');
 		char* p_maze = maze.data();
-		// blockGrid();  < -- to delete becuz of line above
-		// showMaze(maze);
-		cout << "\n";
-		// scout(6, 0, p_maze);
-		system("CLS");
-		scout(6, 0, p_maze);
+		
+		system("CLS");					// clear console of app/user choice info
+		cout << "\n  Displaying a " << G_WIDTH << " x " << G_HEIGHT << " maze:\n";
+
+		scout(4, 0, p_maze);  // TODO:  changing x value messes up maze (4 works for now)
+		exitPunch(maze);
 		showMaze(maze);
-		cout << "\n\n";
-		system("pause");
+
+
+		cout << "\n\n\n";
+
+		system("pause >nul | echo. Continue...");
+
 		system("CLS");
 		cout << "\n\n";
 		z++;							// preventing recursive loop
@@ -82,7 +90,25 @@ int main()
 	cout << "\n\n";
 
 	return 0;
-}	// end of main
+}										// end of main
+
+// function to make an exit
+void exitPunch(vector<char>& maze)
+{
+	int min = (maze.size()) - (G_WIDTH-1);
+	int max = (maze.size() - 1);
+	int randNum = rand() % ( max - min + 1) + min;
+
+	// if (  maze[(randNum - G_WIDTH)] == ' ')	// grid above random grid is empty   <-- 30 x 30
+	if (maze[(randNum - (G_WIDTH))] == ' ')	// grid above random grid is empty
+	{
+		maze[randNum] = 'U';
+	}
+	else
+	{
+		exitPunch(maze);
+	}
+}
 
 // Function to return multiple values using a map
 unordered_map<char, int> initialize(int userChoice)
@@ -102,61 +128,125 @@ unordered_map<char, int> initialize(int userChoice)
 	return mapping;
 }
 
-//// populate a block to start with
-//void blockGrid()
-//{
-//	// for array
-//	//for (int a = 0; a < sizeof(maze); a++)	// for each element in maze[]...
-//	//{
-//	//		maze[a] = wall;					// assign a value of char #
-//	//}
-//	fill(maze.begin(), maze.end(), wall);
-//}
-
 // function to display to console, results of recursive functionality
 void showMaze(vector<char> const& maze)
 {
-	int gridCount = 0;
-
-	for (int a = 0; a < maze.size(); a++)	// cout << maze.at(a) << ' ';
+	if (G_WIDTH == 30)
 	{
-		if (a == G_WIDTH)
+		int gridCount = 1;
+		for (int a = 0; a < maze.size(); a++)
 		{
-			cout << "\n\t" << maze.at(a);
-			gridCount = 2;
+			if (a == G_WIDTH)
+			{
+				// cout << 'A';
+				cout << "\n\t";
+				gridCount = 2;
+			}
+			else if (a == (G_WIDTH * gridCount))
+			{
+				// cout << 'B';
+				cout << "\n\t";
+
+				gridCount++;
+			}
+			else if (a < G_WIDTH)
+			{
+				//cout << 'U';
+			}
+			else if (maze[a] == 'U')
+			{
+				cout << ' ';
+			}
+			else
+			{
+				cout << maze.at(a);
+			}
 		}
-		else if (a == (G_WIDTH * gridCount))
-		{
-			cout << "\n\t" << maze.at(a);
-			gridCount++;
-		}
-		else
-			cout << maze.at(a);
 	}
+	else	// do this if maze dims are not of 30x30 choice
+	{
+		int smGridCount = 0;
+		for (int a = 0; a <= maze.size(); a++)
+		{
+			if (a == G_WIDTH)
+			{
+				// cout << 'P';
+				cout << "\n\t";
+				smGridCount = 2;
+			}
+			else if (a == (G_WIDTH * smGridCount))
+			{
+				cout << 'X';		// cheat
+				cout << "\n\t";
+				smGridCount++;
+			}
+			else if (a > ( maze.size() - G_WIDTH ) && a < maze.size())
+			{
+				if (maze[a] == 'U')
+				{
+					cout << ' ';
+				}
+				else
+				{
+					cout << 'X';		// testing
+				}
+			}
+			else if (a < G_WIDTH)
+			{
+				// cout << 'U';
+			}
+			else
+			{
+				cout << maze.at(a);
+			}
+		}
+	}
+
+
+	
+
+
+
+	// MH assistance version below
+	//std::cout << "\n\n\n\n";
+	/*int p = 0;
+	for (std::vector<char>::const_iterator a = maze.begin(); a != maze.end(); a++)
+	{
+		if (p == G_WIDTH-1)
+		{
+			std::cout << *a << std::endl;
+			p = 0;
+		}
+
+		else if (p != G_WIDTH-1)
+		{
+			std::cout << *a;
+			p++;
+		}
+		
+	}*/
+	//std::cout << p << std::endl;
+
 }
 
 
-/*
-	**** it would appear that the problem is my vector access below --------------------------------------------------------------------------------
-*/
 
 
 // recursive function to scout the gridblock and carve out a path
-void scout(int x, int y, char* maze)
+void scout(int x, int y, char* maze)	// scout(4,0, maze)
 {
+	const int X = x;	// unused
+	const int Y = y;	// unused
 
-	// coordsToArray(x, y);
-	starter = coordsToArray(x, y);
-	// cout << "  coordinates to array:\t" << starter << "\n";
-	// system("pause");
-	maze[starter] = ' ';									// value of maze[36] = ' ' open space
-	//maze.at(starter) = ' ';
+	starter = coordsToArray(x, y);		// starter = 4
+	maze[starter] = ' ';									// value of maze[4] is startergrid
+
 	// create a local array containing four directions of travel
-	int compass[4]{};
-	compass[0] = LOOKUP;
+	int compass[4]{0, 1, 2, 3};
+	/*compass[0] = LOOKUP;
 	compass[1] = LOOKRIGHT;
 	compass[2] = LOOKDOWN;
-	compass[3] = LOOKLEFT;
+	compass[3] = LOOKLEFT*/;
 
 	//// shuffle the order of array contents
 	for (int i = 0; i < 4; i++)
@@ -167,7 +257,7 @@ void scout(int x, int y, char* maze)
 		compass[i] = temp;
 	}
 
-		// loop thru each direction, scouting next move
+	// loop thru each direction, scouting next move
 	// offsets increment x,y values from current index
 	for (int i = 0; i < 4; i++)
 	{
@@ -178,7 +268,7 @@ void scout(int x, int y, char* maze)
 		{
 			case LOOKUP:
 			{
-				offsetY = -1;
+				offsetY = -1;	
 				break;
 			}
 			case LOOKDOWN:
@@ -198,13 +288,14 @@ void scout(int x, int y, char* maze)
 			}
 		}	// end of switch
 	
-		int x2 = x + (offsetX<<1);	// bitshifter
+		int x2 = x + (offsetX<<1);	// bitshifter	4 + ()
 		int y2 = y + (offsetY<<1);	// bitshifter
-		
+
+		//goo++;
 		// if next move is within gridblock...
 		if (isInChamber(x2, y2))
 		{
-			// if (maze[coordsToArray(x2, y2)] == 'X')
+			//std::cout << "x " << x << " x2 " << x2 << "\n y " << y << " y2 " << y2 << std::endl;
 			if (maze[coordsToArray(x2, y2) ] == 'X')
 			{
 				maze[ coordsToArray(x2 - offsetX, y2 - offsetY) ] = ' ';	// replace wall between current and next move
@@ -214,19 +305,22 @@ void scout(int x, int y, char* maze)
 	}
 }
 
+
+
 // function that returns true/false based on results
 // of location x and y
 // returns true if both x and y are within block
-bool isInChamber(int x, int y)
+bool isInChamber(int x, int y)		// x2,y2
 {
-	if (y <= 0 || y >= G_HEIGHT)
+	// if (y <= 0 || y >= G_HEIGHT || x <= 0 || x >= (G_WIDTH-1))	// works for 30x30
+	if (y <= 0 || y >= G_HEIGHT || x <= 0 || x >= G_WIDTH)	// attempt for 25x25
 	{
 		return false;
 	}
-	else if (x <= 0 || x >= G_WIDTH)
+	/*else if (x <= 0 || x >= G_WIDTH)
 	{
 		return false;
-	}
+	}*/
 	else
 	{
 		return true;
@@ -234,7 +328,7 @@ bool isInChamber(int x, int y)
 }
 
 // function to convert x/y coordinates to an array index equivalent
-int coordsToArray(int x, int y)
+int coordsToArray(int x, int y)	// 4,0
 {
-	return y * G_WIDTH + x;
+	return y * G_WIDTH + x;		// 4
 }
