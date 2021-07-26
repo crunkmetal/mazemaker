@@ -1,9 +1,9 @@
-#include "header.h"
+#include "Header.h"
 #include <iostream>
 
 using namespace std;
 
-int header::appdesc()
+int Header::appdesc()
 {
 	cout << "\t\t *** GET LOST ***\n\n";
 	cout << "  This application generates mazes using\n";
@@ -16,15 +16,15 @@ int header::appdesc()
 
 	cout << "  Please choose an option (1 or 2):\t";
 	cin >> userChoice;
-	cout << "  User choice is " << userChoice << "\n\n";
+
 	return userChoice;
 }
 
-int header::verifyChoice(int userChoice)
+int Header::verifyChoice(int userChoice)
 {
 	if (userChoice == 1 || userChoice == 2)
 	{
-		return userChoice;		// return a valid user choice
+		return userChoice;											// returns a valid user choice
 	}
 	else if (userChoice == 4)										// secretsquirrel -programtermination switch ( press 4 )
 	{
